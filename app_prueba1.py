@@ -367,24 +367,6 @@ with tabs[1]:
             col2.info   (f"💼 Most companies /1k inh.: **{emp}**")
 
 ##   5.3 VISUALIZATION (Map)
-def normalizar_coordenada(valor):
-    """
-    Normaliza una coordenada (lat o lon) si está en formato entero codificado.
-    - Si tiene 10 dígitos: se asume que está en 1e8
-    - Si tiene 9 dígitos: se asume que está en 1e7
-    - Si ya es un valor en grados (e.g. 36.5), se devuelve tal cual
-    """
-    try:
-        valor_float = float(valor)
-        if abs(valor_float) > 1e6:
-            longitud = len(str(int(abs(valor_float))))
-            if longitud == 10:
-                return valor_float / 1e8
-            elif longitud == 9:
-                return valor_float / 1e7
-        return valor_float
-    except:
-        return None  # en caso de error de conversión
 
 def convertir_numero(n):
     longitud = len(str(n))
