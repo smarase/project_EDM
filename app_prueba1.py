@@ -367,6 +367,30 @@ with tabs[1]:
             col2.info   (f"💼 Most companies /1k inh.: **{emp}**")
 
 ##   5.3 VISUALIZATION (Map)
+def normalizar_coordenada(valor):
+    """
+    Normaliza una coordenada (lat o lon) si está en formato entero codificado.
+    - Si tiene 10 dígitos: se asume que está en 1e8
+    - Si tiene 9 dígitos: se asume que está en 1e7
+    - Si ya es un valor en grados (e.g. 36.5), se devuelve tal cual
+    """
+    try:
+        valor_float = float(valor)
+        if abs(valor_float) > 1e6:
+            longitud = len(str(int(abs(valor_float))))
+            if longitud == 10:
+                return valor_float / 1e8
+            elif longitud == 9:
+                return valor_float / 1e7
+        return valor_float
+    except:
+        return None  # en caso de error de conversión
+
+def convertir_numero(n):
+    longitud = len(str(n))
+    divisor = 10**(longitud - 2)
+    return float(n) / divisor
+
 with tabs[2]:
     st.header("INDICATOR MAP")
 
@@ -379,7 +403,12 @@ with tabs[2]:
     columnas_necesarias = ["lat", "lon", indicador]
     if all(col in df.columns for col in columnas_necesarias):
         df_mapa = df.dropna(subset=columnas_necesarias)
-
+        df_mapa["lat"] = df_mapa["lat"].apply(convertir_numero)
+        # st.write("Filas con datos válidos para mapa:", df_mapa.shape[0])
+        #df_mapa["lat"] = df_mapa["lat"] / 1e7
+        #st.write(df_mapa[["lat", "lon"]].dtypes)
+        #st.write(df_mapa["lat"].nsmallest(7))    
+        #st.write(df_mapa[["lat", "lon"]].head(10))  # Para ver si Streamlit puede pintar al menos algo
         min_val = df_mapa[indicador].min()
         max_val = df_mapa[indicador].max()
 
@@ -402,7 +431,7 @@ with tabs[2]:
         st.pydeck_chart(pdk.Deck(
             layers=[layer],
             initial_view_state=view_state,
-            map_style="road",
+            map_style="light",
             tooltip={"text": "{municipio}\n" + indicador + ": {" + indicador + "}"}))
         
         fig_legenda = go.Figure(go.Scatter(
